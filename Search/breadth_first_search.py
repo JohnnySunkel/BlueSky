@@ -1,5 +1,5 @@
 from graph import Graph, Vertex
-from queue import Queue
+from queue_ds import Queue
 
 def buildGraph(wordFile):
     d = {}
@@ -22,7 +22,6 @@ def buildGraph(wordFile):
                     g.addEdge(word1, word2)
     return g    
 
-
 def bfs(g, start):
     start.setDistance(0)
     start.setPred(None)
@@ -36,4 +35,16 @@ def bfs(g, start):
                 nbr.setDistance(currentVert.getDistance() + 1)
                 nbr.setPred(currentVert)
                 vertQueue.enqueue(nbr)
-        currentVert.setColor('black')
+        currentVert.setColor('black') 
+
+def traverse(y):
+    x = y
+    while (x.getPred()):
+        print(x.getId())
+        x = x.getPred()
+    print(x.getId())
+
+
+wordgraph = buildGraph('fourletterwords.txt')
+bfs(wordgraph, wordgraph.getVertex('FOOL'))
+traverse(wordgraph.getVertex('SAGE'))
