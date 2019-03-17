@@ -11,5 +11,5 @@ def plus_one(A):
         # a 0 to the end of the array and update the first
         # entry to 1.
         A[0] = 1
-        A.append[0]
+        A.append(0)
     return A
