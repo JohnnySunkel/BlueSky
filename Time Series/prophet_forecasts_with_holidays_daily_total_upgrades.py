@@ -5,7 +5,7 @@ from fbprophet.diagnostics import cross_validation
 from fbprophet.diagnostics import performance_metrics
 
 # Load the dataset
-df = pd.read_csv('daily_total_upgrades_fbp_no_june.csv')
+df = pd.read_csv('daily_total_upgrades_fbp.csv')
 df.head()
 df.tail()
 
@@ -34,7 +34,7 @@ samsung_launch = pd.DataFrame({
                               '2018-03-16',
                               '2019-03-08']),
         'lower_window': 0,
-        'upper_window': 0,
+        'upper_window': 1,
 })
 
 apple_preorder = pd.DataFrame({
@@ -54,6 +54,22 @@ apple_launch = pd.DataFrame({
                               '2018-09-21',
                               '2018-10-26']),
         'lower_window': 0,
+        'upper_window': 1,
+})
+
+black_friday = pd.DataFrame({
+        'holiday': 'black_friday',
+        'ds': pd.to_datetime(['2017-11-24',
+                              '2018-11-23']),
+        'lower_window': 0,
+        'upper_window': 1,
+})
+
+cyber_monday = pd.DataFrame({
+        'holiday': 'cyber_monday',
+        'ds': pd.to_datetime(['2017-11-27',
+                              '2018-11-26']),
+        'lower_window': 0,
         'upper_window': 0,
 })
 
@@ -61,7 +77,9 @@ holidays = pd.concat((easter,
                       samsung_preorder,
                       samsung_launch,
                       apple_preorder,
-                      apple_launch))
+                      apple_launch,
+                      black_friday,
+                      cyber_monday))
 
 # Define and fit the model
 m = Prophet(holidays = holidays)
@@ -81,12 +99,12 @@ df_p = performance_metrics(df_cv)
 df_p.head()
 
 # Create a dataframe to hold predictions
-future = m.make_future_dataframe(periods = 30)
+future = m.make_future_dataframe(periods = 31)
 future.tail()
 
 # Make predictions
 forecast = m.predict(future)
-forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(30)
+forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(31)
 
 # Plot forecasts
 m.plot(forecast).savefig('daily_upgrades_forecast.png')
