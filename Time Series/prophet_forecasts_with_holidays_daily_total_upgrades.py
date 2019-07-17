@@ -1,26 +1,95 @@
 # Prophet forecasts of daily total upgrades
 import pandas as pd
 from fbprophet import Prophet
+from fbprophet.diagnostics import cross_validation
+from fbprophet.diagnostics import performance_metrics
 
 # Load the dataset
-df = pd.read_csv('daily_total_upgrades_fbp.csv')
+df = pd.read_csv('daily_total_upgrades_fbp_no_june.csv')
 df.head()
+df.tail()
+
+# Define holidays
+easter = pd.DataFrame({
+        'holiday': 'easter',
+        'ds': pd.to_datetime(['2017-04-16', 
+                              '2018-04-01',
+                              '2019-04-21']),
+        'lower_window': 0,
+        'upper_window': 0,
+})
+
+samsung_preorder = pd.DataFrame({
+        'holiday': 'samsung_preorder',
+        'ds': pd.to_datetime(['2017-03-30',
+                              '2018-03-02',
+                              '2019-02-21']),
+        'lower_window': 0,
+        'upper_window': 0,
+})
+
+samsung_launch = pd.DataFrame({
+        'holiday': 'samsung_launch',
+        'ds': pd.to_datetime(['2017-04-21',
+                              '2018-03-16',
+                              '2019-03-08']),
+        'lower_window': 0,
+        'upper_window': 0,
+})
+
+apple_preorder = pd.DataFrame({
+        'holiday': 'apple_preorder',
+        'ds': pd.to_datetime(['2017-09-15',
+                              '2017-10-27',
+                              '2018-09-14',
+                              '2018-10-19']),
+        'lower_window': 0,
+        'upper_window': 0,
+})
+
+apple_launch = pd.DataFrame({
+        'holiday': 'apple_launch',
+        'ds': pd.to_datetime(['2017-09-22',
+                              '2017-11-03',
+                              '2018-09-21',
+                              '2018-10-26']),
+        'lower_window': 0,
+        'upper_window': 0,
+})
+
+holidays = pd.concat((easter,
+                      samsung_preorder,
+                      samsung_launch,
+                      apple_preorder,
+                      apple_launch))
 
 # Define and fit the model
-m = Prophet()
+m = Prophet(holidays = holidays)
 m.add_country_holidays(country_name = 'US')
+m.train_holiday_names
 m.fit(df)
 
+# Cross validation
+df_cv = cross_validation(m, 
+                         initial = '730 days',
+                         period = '180 days',
+                         horizon = '60 days')
+df_cv.head()
+
+# Performance metrics
+df_p = performance_metrics(df_cv)
+df_p.head()
+
 # Create a dataframe to hold predictions
-future = m.make_future_dataframe(periods = 31)
+future = m.make_future_dataframe(periods = 30)
 future.tail()
 
 # Make predictions
 forecast = m.predict(future)
-forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(31)
+forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(30)
 
 # Plot forecasts
-fig1 = m.plot(forecast)
+m.plot(forecast).savefig('daily_upgrades_forecast.png')
 
 # Plot forecast components
-fig2 = m.plot_components(forecast)
+m.plot_components(forecast).savefig('daily_upgrades_forecast_components.png')
