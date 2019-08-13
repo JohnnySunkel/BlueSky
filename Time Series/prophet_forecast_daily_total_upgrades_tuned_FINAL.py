@@ -1,4 +1,4 @@
-# Prophet forecasts of daily total upgrades
+# Prophet forecasts for daily total upgrades
 import pandas as pd
 from fbprophet import Prophet
 from fbprophet.plot import add_changepoints_to_plot
@@ -157,7 +157,7 @@ holidays = pd.concat((easter,
 
 # Define and fit the model
 m = Prophet(holidays = holidays,
-            daily_seasonality = True,
+            daily_seasonality = False,
             yearly_seasonality = 6,
             changepoint_range = 0.9,
             changepoint_prior_scale = 0.01)
